@@ -8,7 +8,7 @@ contract HotelBooking {
     address public owner;
 
     mapping(uint32 => address) roomUsers;
-    uint32 noOfRoomUsers;
+    uint32 public noOfRoomUsers;
 
     event checkInOut(
         address _visitor,
@@ -48,15 +48,16 @@ contract HotelBooking {
         require(isRoomAvailable(roomId),"Room is booked");
         require(msg.value == 1 ether, "you must have to pay 1 ether");
         roomUsers[roomId] = msg.sender;
-
+        noOfRoomUsers++;
         emit checkInOut(msg.sender, roomId,block.timestamp,true);
 
     }
 
     function checkout(uint32 roomId) public {
-        require(roomUsers[roomId]== msg.sender, "you must have to be a sme room user");
+        require(roomUsers[roomId]== msg.sender || roomUsers[roomId]== owner, "you must have to be a sme room user");
         roomUsers[roomId] = address(0);
         payable(owner).transfer(1 ether);
+        noOfRoomUsers--;
         emit checkInOut(msg.sender, roomId, block.timestamp, false);
     }
 }
